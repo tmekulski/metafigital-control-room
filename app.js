@@ -17,7 +17,7 @@ const dcIcon = (mw,status)=>({
   color: status==='operational'?'#4aa3ff':'#f5a524', weight:2,
   fillColor: status==='operational'?'#1a3a66':'#5a3a10', fillOpacity:.85
 });
-const grIcon = {radius:5, color:'#3ddc97', weight:1.5, fillColor:'#0f3d2a', fillOpacity:.9);
+const grIcon = {radius:5, color:'#3ddc97', weight:1.5, fillColor:'#0f3d2a', fillOpacity:.9};
 const ndIcon = (st)=>({
   radius:7, color: st==='mvp'?'#3ddc97':st==='planned'?'#4aa3ff':'#7f8da8', weight:2,
   fillColor: st==='mvp'?'#145c3a':st==='planned'?'#1a3a66':'#2a3142', fillOpacity:.95
@@ -60,16 +60,16 @@ document.getElementById('kNd').textContent = t.node_mw;
 document.getElementById('kMh').textContent = t.node_mwh;
 
 function select(o,kind){
-  const el=document.getElementById('sel);
+  const el=document.getElementById('sel');
   if(kind==='dc') el.innerHTML=`<b>${o.name}</b><br>${o.operator}<br>${o.mw} MW · <b>${o.status}</b><br>${o.city}<br>Source: ${o.source}`;
   else if(kind==='gr') el.innerHTML=`<b>${o.name}</b><br>${o.chain} · ${o.city}<br>Source: ${o.source}`;
   else el.innerHTML=`<b>${o.id} · ${o.name}</b><br>${o.mw} MW · ${o.mwh} MWh · ${o.status}<br>Nearest rival DC: ${o.nearest_rival} — ${o.nearest_rival_mi} mi (${o.nearest_rival_mw} MW)<br>Nearest grocery: ${o.nearest_grocery} — ${o.nearest_grocery_mi} mi`;
 }
 
-const steps=document.querySelectorAll('.step);
-const receipt=document.getElementById('receipt);
-const btnRun=document.getElementById('btnRun'), btnStop=document.getElementById('btnStop'), btnReset=document.getElementById('btnReset);
-const modeLabel=document.getElementById('modeLabel);
+const steps=document.querySelectorAll('.step');
+const receipt=document.getElementById('receipt');
+const btnRun=document.getElementById('btnRun'), btnStop=document.getElementById('btnStop'), btnReset=document.getElementById('btnReset');
+const modeLabel=document.getElementById('modeLabel');
 let running=false, timer=null, idx=0;
 
 function resetUI(){
@@ -87,11 +87,11 @@ btnRun.addEventListener('click',()=>{
   const lines=[];
   timer=setInterval(()=>{
     if(idx>=steps.length){finish();return;}
-    steps[idx].classList.add('run);
-    const labels=['MISSION INTAKE','GOVERNANCE CHECK','TRUE EXECUTION','TRUEVIEW RECONCILIATION','METACON RECEIPT'];
-    lines.push('['+new Date().toLocaleTimeString()+'] '+labels[idx]+' · PASS);
-    receipt.textContent=lines.join('\n);
-    steps[idx].classList.remove('run); steps[idx].classList.add('done);
+    steps[idx].classList.add('run');
+    const labels=['MISSION INTAKE','GOVERNANCE CHECK','TRU EXECUTION','TRU-VU RECONCILIATION','METACON RECEIPT'];
+    lines.push('['+new Date().toLocaleTimeString()+'] '+labels[idx]+' · PASS');
+    receipt.textContent=lines.join('\n');
+    steps[idx].classList.remove('run'); steps[idx].classList.add('done');
     idx++;
   },900);
 });
@@ -109,7 +109,7 @@ Gross value: ${mt.gross_usd.toFixed(2)} USD
 Community share (65%): ${mt.community_share_usd.toFixed(2)} USD
 Metafigital share (35%): ${mt.metafigital_share_usd.toFixed(2)} USD
 Governance: CONFIGITAL OS · CESGT conditions met · no override
-Telemetry: TrueView Decision Attestation Record attached
+Telemetry: TRU-VU Decision Attestation Record attached
 Status: VERIFIED · representative demo data, not live telemetry
 Issued: ${now.toISOString()}`;
 }
