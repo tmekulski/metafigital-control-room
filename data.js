@@ -1,7 +1,7 @@
 const DATA = {
   "corridor": "Ashburn / Sterling, Loudoun County VA · PJM DOM zone · Data Center Alley",
   "as_of": "2026-09-26",
-  "disclaimer": "Representative demo data. DC capacities from public Dominion Energy permit filings and datacenter.fyi. Grocery locations from public store locators (Sep 2026). PJM LMP from gridstatus.io (Sep 23 2026). Not live telemetry.",
+  "disclaimer": "Representative demo data. DC capacities from public Dominion Energy permit filings and datacenter.fyi. Grocery locations from public store locators (Sep 2026). PJM LMP from gridstatus.io (Sep 23, 2026). Not live telemetry.",
   "data_centers": [
     {"id":"DC-AWS-01","name":"AWS IAD Import Campus","operator":"Amazon Web Services","city":"Ashburn","status":"operational","mw":400.5,"lat":39.0438,"lng":-77.4874,"source":"Dominion Energy permit filings"},
     {"id":"DC-EQX-01","name":"Equinix DC21 / DC22","operator":"Equinix","city":"Ashburn","status":"operational","mw":223.5,"lat":39.0445,"lng":-77.4902,"source":"Dominion Energy permit filings"},
