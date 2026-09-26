@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>METAFIGITAL · PowerCenter Control Room</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<style>
+  :root{
+    --bg:#070b14; --panel:#0d1524; --panel2:#111b2e; --line:#1c2a44;
+    --text:#d7e0ef; --muted:#7f8da8; --accent:#3ddc97; --accent2:#4aa3ff;
+    --warn:#f5a524; --bad:#ff5d5d; --ok:#3ddc97;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,-apple-system,sans-serif}
+  body{display:grid;grid-template-rows:auto 1fr;min-height:100vh}
+  header{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0a1020,#070b14)}
+  .brand{display:flex;align-items:baseline;gap:10px}
+  .brand .m{font-weight:800;letter-spacing:.18em;color:var(--accent)}
+  .brand h1{font-size:15px;letter-spacing:.14em;text-transform:uppercase}
+  .brand small{color:var(--muted);font-size:11px}
+  .status{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+  .status b{color:var(--text)}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px;box-shadow:0 0 8px var(--ok)}
+  .dot.sim{background:var(--warn);box-shadow:0 0 8px var(--warn)}
+  main{display:grid;grid-template-columns:1fr 340px;min-height:0}
+  #map{min-height:0;background:#05080f}
+  .leaflet-container{background:#05080f}
+  aside{display:flex;flex-direction:column;gap:12px;padding:14px;overflow:auto;border-left:1px solid var(--line);background:var(--panel)}
+  .panel{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
+  .panel h2{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px}
+  .kpi .v{font-size:18px;font-weight:700;color:var(--accent)}
+  .kpi .l{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+  .layers{display:flex;flex-direction:column;gap:6px}
+  .layers label{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:4px 2px}
+  .layers input{accent-color:var(--accent)}
+  .mission .steps{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+  .step{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;padding:6px 8px;border-radius:6px;background:var(--panel);border:1px solid var(--line)}
+  .step .n{font-weight:700;color:var(--accent2);min-width:18px}
+  .step.done{border-color:#1f3d2b;background:#0b1712}
+  .step.done .n{color:var(--ok)}
+  .step.run{border-color:#2a3f66;background:#0c1528}
+  .btns{display:flex;gap:8px;flex-wrap:wrap}
+  button{font:inherit;font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:8px 14px;border-radius:7px;border:1px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer}
+  button.primary{background:var(--accent);color:#06251a;border-color:var(--accent)}
+  button.danger{background:#2a1212;color:var(--bad);border-color:#4a1f1f}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  .receipt{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;line-height:1.55;white-space:pre-wrap;color:#b7c4d8;background:#070b14;border:1px dashed var(--line);border-radius:8px;padding:10px;min-height:120px}
+  .receipt .ok{color:var(--ok)} .receipt .warn{color:var(--warn)}
+  .src{font-size:10px;color:var(--muted);line-height:1.4}
+  .src a{color:var(--accent2)}
+  footer{padding:8px 20px;font-size:10.5px;color:var(--muted);border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  @media (max-width:900px){main{grid-template-columns:1fr} aside{border-left:none;border-top:1px solid var(--line);max-height:46vh}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <span class="m">M</span>
+    <div><h1>PowerCenter Control Room</h1><small>METAFIGITAL · Constitutional Intelligent Infrastructure</small></div>
+  </div>
+  <div class="status">
+    <span><span class="dot"></span>GOVERNANCE <b>ONLINE</b></span>
+    <span>V3 <b>VERIFIED</b></span>
+    <span>URBAN MINER <b>ACTIVE</b></span>
+    <span>MODE <b id="modeLabel">STANDBY</b></span>
+    <span>CLOCK <b id="clock">--:--:--</b></span>
+  </div>
+</header>
+<main>
+  <div id="map"></div>
+  <aside>
+    <div class="panel kpis">
+      <div class="kpi"><div class="v" id="kDc">--</div><div class="l">Data Centers · MW</div></div>
+      <div class="kpi"><div class="v" id="kOp">--</div><div class="l">Operational MW</div></div>
+      <div class="kpi"><div class="v" id="kUc">--</div><div class="l">Under Construction MW</div></div>
+      <div class="kpi"><div class="v" id="kGr">--</div><div class="l">Grocery / Retail Sites</div></div>
+      <div class="kpi"><div class="v" id="kNd">--</div><div class="l">Metafigital Nodes · MW</div></div>
+      <div class="kpi"><div class="v" id="kMh">--</div><div class="l">Node Storage · MWh</div></div>
+    </div>
+
+    <div class="panel">
+      <h2>Map Layers</h2>
+      <div class="layers">
+        <label><input type="checkbox" id="lyDc" checked> Data Centers (capacity-scaled)</label>
+        <label><input type="checkbox" id="lyGr" checked> Grocery &amp; Retail</label>
+        <label><input type="checkbox" id="lyNd" checked> Metafigital Nodes</label>
+        <label><input type="checkbox" id="lyTx"> Transmission / hosting lines</label>
+        <label><input type="checkbox" id="lyDr"> Demand-response hotspots</label>
+      </div>
+    </div>
+
+    <div class="panel mission">
+      <h2>Governed Mission · THERM Dispatch</h2>
+      <div class="steps" id="steps">
+        <div class="step" data-i="0"><span class="n">01</span><span>Mission intake — event envelope, site limits, participant rules</span></div>
+        <div class="step" data-i="1"><span class="n">02</span><span>Governance check — authority, CESGT conditions, manual override</span></div>
+        <div class="step" data-i="2"><span class="n">03</span><span>TRUE execution — dispatch inside approved envelope</span></div>
+        <div class="step" data-i="3"><span class="n">04</span><span>TrueView reconciliation — Decision Attestation Record</span></div>
+        <div class="step" data-i="4"><span class="n">05</span><span>MetaCon receipt — verified performance, 65/35 split</span></div>
+      </div>
+      <div class="btns">
+        <button class="primary" id="btnRun">▶ Run governed action</button>
+        <button class="danger" id="btnStop" disabled>■ Manual stop</button>
+        <button id="btnReset">↺ Reset</button>
+      </div>
+      <div class="receipt" id="receipt">AWAITING RUN — no receipt issued.</div>
+    </div>
+
+    <div class="panel">
+      <h2>Selected Site</h2>
+      <div id="sel" style="font-size:12.5px;line-height:1.5;color:var(--muted)">Click any marker on the map.</div>
+    </div>
+
+    <div class="panel src">
+      Sources: DC capacities — Dominion Energy permit filings via datacenter.fyi · Grocery — public store locators (Sep 2026) · PJM DOM-zone RT LMP — gridstatus.io (Sep 23, 2026) · All figures representative demo data, not live telemetry.
+    </div>
+  </aside>
+</main>
+<footer>
+  <span>METAFIGITAL · REPRESENTATIVE DEMO · NOT LIVE TELEMETRY</span>
+  <span>Ashburn / Sterling corridor · PJM DOM zone</span>
+</footer>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
